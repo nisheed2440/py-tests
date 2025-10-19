@@ -47,6 +47,33 @@ The script uses the default BCM pin configuration:
 - **CS**: GPIO 8 (CE0)
 - **SPI**: Bus 0, Device 0
 
+## Music Player UI
+
+A fully functional music player interface with album art display.
+
+### Create Sample Album Covers
+```bash
+python3 create_sample_cover.py
+```
+
+This generates 4 different album cover styles:
+- **Vinyl Record** - Classic vinyl disc design
+- **Neon/Synthwave** - Retro 80s aesthetic
+- **Gradient** - Modern gradient with music note
+- **Abstract** - Geometric shapes
+
+### Run Music Player
+```bash
+source venv/bin/activate
+sudo $(which python) music_player_ui.py
+```
+
+**Controls:**
+- KEY1 - Play/Pause
+- Joystick LEFT/RIGHT - Previous/Next track
+- Joystick UP/DOWN - Volume control
+- KEY3 - Exit
+
 ## Reference
 
 Based on [Waveshare 1.3inch LCD HAT Wiki](https://www.waveshare.com/wiki/1.3inch_LCD_HAT)
