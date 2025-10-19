@@ -22,6 +22,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**Note:** This includes:
+- `Pillow` - Image processing for LCD
+- `RPi.GPIO` - GPIO control
+- `spidev` - SPI communication
+- `mfrc522` - NFC/RFID reader library
+
 ## Quick Start
 
 The project uses a modular structure where you can run different tests conditionally:
@@ -62,12 +68,12 @@ sudo $(which python) -m modules.lcd.lcd_test
 
 ### NFC/RFID Reader Test (`python app.py nfc`)
 
-Tests the MFRC522 NFC/RFID reader functionality:
+Tests the MFRC522 NFC/RFID reader functionality using the `mfrc522-python` library:
 1. Initializes the MFRC522 reader
 2. Continuously scans for NFC cards/tags
-3. Displays card UID (Unique Identifier)
-4. Shows card type and size information
-5. Attempts to read and authenticate MIFARE Classic cards
+3. Displays card UID (Unique Identifier) in both decimal and hex format
+4. Reads and displays any text data stored on the card
+5. Simple and reliable card detection with debouncing
 
 Run directly as a module:
 ```bash
@@ -75,9 +81,9 @@ sudo $(which python) -m modules.nfc.nfc_test
 ```
 
 **Supported Cards:**
-- MIFARE Classic 1K/4K
+- MIFARE Classic 1K (most common)
+- MIFARE Classic 4K
 - MIFARE Ultralight
-- NTAG series
 - Most ISO 14443A compatible cards
 
 ### Music Player (`python app.py music`)
@@ -119,7 +125,6 @@ py-2/
 │   │   └── ui.py              # Music player main loop
 │   └── nfc/                   # NFC/RFID module
 │       ├── __init__.py
-│       ├── mfrc522.py         # MFRC522 driver
 │       └── nfc_test.py        # NFC reader test suite
 ├── music_player_ui.py         # Standalone music player (legacy)
 ├── album_cover_*.png          # Sample album artwork
@@ -147,20 +152,20 @@ Default BCM pin configuration:
 - **Joystick PRESS**: GPIO 13
 
 ### NFC/RFID Module (MFRC522)
-Default configuration:
-- **SPI Bus**: 0
-- **SPI Device**: 0
-- **RST**: GPIO 22 (BOARD pin mode)
-- **SPI Speed**: 1 MHz
+Uses the `mfrc522-python` library with default configuration:
+- **RST**: GPIO 25 (BCM mode, BOARD pin 22)
+- **SPI**: CE0 (default SPI pins)
 
-**Wiring:**
-- SDA (NSS) → GPIO 8 (CE0)
-- SCK → GPIO 11 (SCLK)
-- MOSI → GPIO 10
-- MISO → GPIO 9
+**Standard Wiring:**
+- SDA/NSS → GPIO 8 (CE0, pin 24)
+- SCK → GPIO 11 (SCLK, pin 23)
+- MOSI → GPIO 10 (pin 19)
+- MISO → GPIO 9 (pin 21)
 - GND → Ground
-- RST → GPIO 22
-- 3.3V → 3.3V
+- RST → GPIO 25 (BCM) / pin 22 (BOARD)
+- 3.3V → 3.3V (pin 1 or 17)
+
+**Note:** The library uses BCM GPIO 25 for RST by default, which is physical pin 22.
 
 ## Reference
 
