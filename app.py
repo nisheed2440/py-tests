@@ -25,14 +25,25 @@ def run_music_player():
     run_player()
 
 
+def run_nfc_test():
+    """Run the NFC/RFID reader test"""
+    from modules.nfc import run_test
+    print("=" * 50)
+    print("Starting NFC/RFID Reader Test")
+    print("=" * 50)
+    run_test()
+
+
 def list_tests():
     """Display available tests"""
     print("\nAvailable tests:")
     print("  lcd          - Test the 1.3inch LCD HAT (ST7789)")
     print("  music        - Run the music player UI")
+    print("  nfc          - Test the MFRC522 NFC/RFID reader")
     print("\nUsage examples:")
     print("  python app.py lcd")
     print("  python app.py music")
+    print("  python app.py nfc")
     print("  python app.py --list")
 
 
@@ -44,6 +55,7 @@ def main():
 Examples:
   python app.py lcd           Run LCD hardware test
   python app.py music         Run music player
+  python app.py nfc           Run NFC/RFID reader test
   python app.py --list        Show all available tests
         """
     )
@@ -51,7 +63,7 @@ Examples:
     parser.add_argument(
         'test',
         nargs='?',
-        choices=['lcd', 'music'],
+        choices=['lcd', 'music', 'nfc'],
         help='Test module to run'
     )
     
@@ -78,6 +90,8 @@ Examples:
             run_lcd_test()
         elif args.test == 'music':
             run_music_player()
+        elif args.test == 'nfc':
+            run_nfc_test()
     except KeyboardInterrupt:
         print("\n\nTest interrupted by user")
         sys.exit(0)
