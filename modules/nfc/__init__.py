@@ -5,6 +5,7 @@ Uses the mfrc522-python library
 """
 
 from .nfc_test import run_test
+from .diagnostic import run_diagnostic
 
-__all__ = ['run_test']
+__all__ = ['run_test', 'run_diagnostic']
 

@@ -75,7 +75,12 @@ Tests the MFRC522 NFC/RFID reader functionality using the `mfrc522-python` libra
 4. Reads and displays any text data stored on the card
 5. Simple and reliable card detection with debouncing
 
-Run directly as a module:
+**If cards aren't being detected, run the diagnostic first:**
+```bash
+sudo $(which python) app.py nfc-diag
+```
+
+Run the test directly as a module:
 ```bash
 sudo $(which python) -m modules.nfc.nfc_test
 ```
@@ -85,6 +90,21 @@ sudo $(which python) -m modules.nfc.nfc_test
 - MIFARE Classic 4K
 - MIFARE Ultralight
 - Most ISO 14443A compatible cards
+
+### NFC Hardware Diagnostic (`python app.py nfc-diag`)
+
+Comprehensive diagnostic tool to check MFRC522 setup:
+1. Tests GPIO module and configuration
+2. Verifies SPI interface is enabled and accessible
+3. Checks MFRC522 library installation
+4. Tests reader initialization
+5. Reads and validates chip version register
+6. Performs 5-second card detection test
+
+Use this if you're having issues with card detection:
+```bash
+sudo $(which python) app.py nfc-diag
+```
 
 ### Music Player (`python app.py music`)
 
@@ -125,6 +145,7 @@ py-2/
 │   │   └── ui.py              # Music player main loop
 │   └── nfc/                   # NFC/RFID module
 │       ├── __init__.py
+│       ├── diagnostic.py      # Hardware diagnostic tool
 │       └── nfc_test.py        # NFC reader test suite
 ├── music_player_ui.py         # Standalone music player (legacy)
 ├── album_cover_*.png          # Sample album artwork
