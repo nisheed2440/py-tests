@@ -21,7 +21,7 @@ This will check:
 
 **Symptoms:**
 - Script finds music in `~/Music`
-- But MPD is configured to use a different path
+- But MPD is configured to use a different path (e.g., `/home/pi/Music` when your user is different)
 - `mpc stats` shows 0 songs
 
 **Solution:**
@@ -29,11 +29,14 @@ This will check:
 # Check MPD config
 grep music_directory /etc/mpd.conf
 
-# If it shows wrong path, edit config:
+# If it shows wrong path (e.g., /home/pi/Music but you're user "john"), edit config:
 sudo nano /etc/mpd.conf
 
-# Change music_directory to match where your music is:
-music_directory    "/home/pi/Music"
+# Change music_directory to match YOUR username:
+music_directory    "/home/john/Music"
+
+# Or run the setup script which automatically detects your username:
+./setup_dac.sh
 
 # Restart MPD and update:
 sudo systemctl restart mpd
@@ -41,6 +44,8 @@ mpc update
 sleep 5
 mpc stats
 ```
+
+**Note:** The `setup_dac.sh` script now automatically detects your actual username (even if run with sudo) and configures MPD to use `/home/yourusername/Music`, not `/home/pi/Music`.
 
 ### Issue 2: Permission Problems
 

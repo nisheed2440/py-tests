@@ -13,15 +13,44 @@ The issue could be caused by several factors:
    - Database update to complete
    - File system scan to finish
 
-2. **Path Mismatch**: The script might find music in `~/Music`, but MPD could be configured to use a different path like `/var/lib/mpd/music`
+2. **Path Mismatch**: The script might find music in `~/Music`, but MPD could be configured to use a different path like `/var/lib/mpd/music` or `/home/pi/Music` (hardcoded) when the actual username is different
 
-3. **Permission Issue**: The MPD user (usually `mpd`) may not have permission to read the music directory
+3. **User Detection Issue**: If run with sudo, `$HOME` might expand to `/root` instead of the actual user's home directory
 
-4. **No Verification**: The original script didn't verify that the database was actually populated after running `mpc update`
+4. **Permission Issue**: The MPD user (usually `mpd`) may not have permission to read the music directory
+
+5. **No Verification**: The original script didn't verify that the database was actually populated after running `mpc update`
 
 ## Solutions Implemented
 
 ### 1. Improved `setup_dac.sh`
+
+**Changes to user detection (lines 36-53):**
+
+Now properly detects the actual user, even when run with sudo:
+
+```bash
+# OLD: Used $HOME which could be /root if run with sudo
+MUSIC_DIR="$HOME/Music"
+
+# NEW: Detects actual user and their home directory
+ACTUAL_USER="${SUDO_USER:-$USER}"
+ACTUAL_HOME=$(eval echo ~$ACTUAL_USER)
+MUSIC_DIR="$ACTUAL_HOME/Music"
+
+echo "  Current user: $ACTUAL_USER"
+echo "  Music directory: $MUSIC_DIR"
+
+# Creates directory with correct ownership
+if [ -n "$SUDO_USER" ]; then
+    chown "$SUDO_USER:$SUDO_USER" "$MUSIC_DIR"
+fi
+```
+
+This ensures that:
+- Even if you run `sudo ./setup_dac.sh`, it uses YOUR music directory, not root's
+- The directory is owned by you, not root
+- MPD config points to the correct user's Music folder
 
 **Changes to database update section (lines 129-163):**
 

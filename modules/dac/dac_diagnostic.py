@@ -252,6 +252,15 @@ class DACDiagnostic:
         """Check music directory setup"""
         self.print_header("5. Music Directory")
         
+        # Get actual user (handle sudo case)
+        import pwd
+        actual_user = os.environ.get('SUDO_USER') or os.environ.get('USER')
+        actual_home = pwd.getpwnam(actual_user).pw_dir if actual_user else os.path.expanduser('~')
+        
+        print(f"Current user: {actual_user}")
+        print(f"User home: {actual_home}")
+        print()
+        
         # First, get MPD's configured music directory
         mpd_music_dir = None
         config_paths = ['/etc/mpd.conf', os.path.expanduser('~/.config/mpd/mpd.conf')]
@@ -269,11 +278,17 @@ class DACDiagnostic:
                 except Exception as e:
                     pass
         
+        # Use actual user's music directory first
         music_dirs = [
+            f"{actual_home}/Music",
             os.path.expanduser('~/Music'),
             '/var/lib/mpd/music',
             '/home/pi/Music'
         ]
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        music_dirs = [x for x in music_dirs if not (x in seen or seen.add(x))]
         
         # Add MPD's configured directory if different
         if mpd_music_dir and mpd_music_dir not in music_dirs:

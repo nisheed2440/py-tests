@@ -24,8 +24,15 @@ echo "------------------------------------------------------------"
 echo "Config file: $MPD_CONF"
 echo ""
 
+# Get the actual user (not root, even if run with sudo)
+ACTUAL_USER="${SUDO_USER:-$USER}"
+ACTUAL_HOME=$(eval echo ~$ACTUAL_USER)
+echo "Current user: $ACTUAL_USER"
+echo "User home: $ACTUAL_HOME"
+echo ""
+
 # Extract key settings
-MUSIC_DIR=$(grep "^music_directory" "$MPD_CONF" | sed 's/music_directory[[:space:]]*"\(.*\)"/\1/' | sed "s|~|$HOME|")
+MUSIC_DIR=$(grep "^music_directory" "$MPD_CONF" | sed 's/music_directory[[:space:]]*"\(.*\)"/\1/' | sed "s|~|$ACTUAL_HOME|")
 MPD_USER=$(grep "^user" "$MPD_CONF" | awk '{print $2}' | tr -d '"')
 DB_FILE=$(grep "^db_file" "$MPD_CONF" | sed 's/db_file[[:space:]]*"\(.*\)"/\1/')
 

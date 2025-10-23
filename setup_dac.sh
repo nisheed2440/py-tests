@@ -32,12 +32,24 @@ fi
 # Step 2: Create music directory
 echo ""
 echo "[2/5] Setting up music directory..."
-MUSIC_DIR="$HOME/Music"
+
+# Get the actual user (not root, even if run with sudo)
+ACTUAL_USER="${SUDO_USER:-$USER}"
+ACTUAL_HOME=$(eval echo ~$ACTUAL_USER)
+MUSIC_DIR="$ACTUAL_HOME/Music"
+
+echo "  Current user: $ACTUAL_USER"
+echo "  Music directory: $MUSIC_DIR"
+
 if [ -d "$MUSIC_DIR" ]; then
-    echo "✓ Music directory already exists: $MUSIC_DIR"
+    echo "✓ Music directory already exists"
 else
     mkdir -p "$MUSIC_DIR"
-    echo "✓ Created music directory: $MUSIC_DIR"
+    # Ensure ownership is correct if created with sudo
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:$SUDO_USER" "$MUSIC_DIR"
+    fi
+    echo "✓ Created music directory"
 fi
 
 # Check for music files

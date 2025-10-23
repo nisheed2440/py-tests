@@ -65,6 +65,11 @@ class DACTester:
         """Check if music directory exists and has files"""
         print("\n[3/5] Checking music directory...")
         
+        # Get actual user (handle sudo case)
+        import pwd
+        actual_user = os.environ.get('SUDO_USER') or os.environ.get('USER')
+        actual_home = pwd.getpwnam(actual_user).pw_dir if actual_user else os.path.expanduser('~')
+        
         # Get MPD music directory from config
         try:
             result = subprocess.run(['mpc', 'version'], 
@@ -75,12 +80,17 @@ class DACTester:
         except:
             pass
         
-        # Common music directory locations
+        # Common music directory locations (prioritize actual user's directory)
         music_dirs = [
+            f"{actual_home}/Music",
             os.path.expanduser('~/Music'),
             '/var/lib/mpd/music',
             '/home/pi/Music'
         ]
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        music_dirs = [x for x in music_dirs if not (x in seen or seen.add(x))]
         
         found_music = False
         for music_dir in music_dirs:

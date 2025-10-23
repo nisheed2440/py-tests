@@ -6,8 +6,11 @@
 
 # Music Directory
 # This is where MPD will look for music files
+# Change "pi" to your actual username, or use the setup script which does this automatically
 music_directory     "/home/pi/Music"
-# Alternative: music_directory "/var/lib/mpd/music"
+# Alternative locations:
+# music_directory "/var/lib/mpd/music"
+# music_directory "/home/yourusername/Music"
 
 # Playlist Directory
 # Where MPD stores saved playlists
