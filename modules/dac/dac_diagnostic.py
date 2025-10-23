@@ -252,11 +252,32 @@ class DACDiagnostic:
         """Check music directory setup"""
         self.print_header("5. Music Directory")
         
+        # First, get MPD's configured music directory
+        mpd_music_dir = None
+        config_paths = ['/etc/mpd.conf', os.path.expanduser('~/.config/mpd/mpd.conf')]
+        
+        for config_path in config_paths:
+            if os.path.exists(config_path):
+                try:
+                    with open(config_path, 'r') as f:
+                        for line in f:
+                            if line.strip().startswith('music_directory'):
+                                mpd_music_dir = line.split('"')[1] if '"' in line else line.split()[1]
+                                mpd_music_dir = os.path.expanduser(mpd_music_dir)
+                                print(f"MPD configured music directory: {mpd_music_dir}")
+                                break
+                except Exception as e:
+                    pass
+        
         music_dirs = [
             os.path.expanduser('~/Music'),
             '/var/lib/mpd/music',
             '/home/pi/Music'
         ]
+        
+        # Add MPD's configured directory if different
+        if mpd_music_dir and mpd_music_dir not in music_dirs:
+            music_dirs.insert(0, mpd_music_dir)
         
         found_music = False
         for music_dir in music_dirs:
@@ -276,6 +297,11 @@ class DACDiagnostic:
                     if music_files:
                         self.print_success(f"Music found in: {music_dir}")
                         print(f"  Found {len(music_files)}+ music file(s)")
+                        
+                        # Check if this matches MPD's configured directory
+                        if mpd_music_dir and music_dir != mpd_music_dir:
+                            self.print_warning(f"Music found in {music_dir} but MPD is configured to use {mpd_music_dir}")
+                        
                         found_music = True
                         
                         # Show first few files
@@ -292,6 +318,29 @@ class DACDiagnostic:
             for music_dir in music_dirs:
                 print(f"    - {music_dir}")
             print("\n  Supported formats: .mp3, .flac, .wav, .ogg, .m4a, .aac")
+        
+        # Check MPD database stats
+        print("\nMPD Database Status:")
+        try:
+            result = subprocess.run(['mpc', 'stats'], 
+                                  capture_output=True,
+                                  text=True,
+                                  timeout=5)
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if 'Songs:' in line or 'Artists:' in line or 'Albums:' in line:
+                        print(f"  {line.strip()}")
+                
+                # Check if database has songs
+                if 'Songs: 0' in result.stdout or not any('Songs:' in line for line in result.stdout.split('\n')):
+                    self.print_warning("MPD database is empty")
+                    print("  Run: mpc update")
+                else:
+                    self.print_success("MPD database has indexed music")
+            else:
+                self.print_warning("Could not check MPD database stats")
+        except Exception as e:
+            self.print_warning(f"Error checking database: {e}")
     
     def check_boot_config(self):
         """Check boot configuration for DAC overlay"""

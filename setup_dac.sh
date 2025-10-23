@@ -102,7 +102,24 @@ if [ -f "$MPD_CONF" ]; then
     # Update music directory
     if grep -q "^music_directory" "$MPD_CONF"; then
         sudo sed -i "s|^music_directory.*|music_directory    \"$MUSIC_DIR\"|" "$MPD_CONF"
-        echo "✓ Updated music directory in MPD config"
+        echo "✓ Updated music directory in MPD config to: $MUSIC_DIR"
+    else
+        echo "⚠ Could not find music_directory setting in config"
+    fi
+    
+    # Check permissions on music directory
+    if [ -d "$MUSIC_DIR" ]; then
+        MPD_USER=$(grep "^user" "$MPD_CONF" | awk '{print $2}' | tr -d '"')
+        if [ -n "$MPD_USER" ] && [ "$MPD_USER" != "$(whoami)" ]; then
+            echo "  Note: MPD runs as user '$MPD_USER'"
+            echo "  Checking if MPD user can access music directory..."
+            if sudo -u "$MPD_USER" test -r "$MUSIC_DIR" 2>/dev/null; then
+                echo "  ✓ MPD user can read music directory"
+            else
+                echo "  ⚠ MPD user may not have permission to read $MUSIC_DIR"
+                echo "  Fix with: sudo chmod -R a+rX $MUSIC_DIR"
+            fi
+        fi
     fi
     
     echo "✓ MPD configuration updated"
@@ -130,9 +147,36 @@ fi
 if command -v mpc &> /dev/null; then
     echo ""
     echo "Updating MPD database..."
-    mpc update &> /dev/null || true
+    
+    # Wait for MPD to fully restart before updating
     sleep 2
-    echo "✓ Database updated"
+    
+    # Run update and wait for completion
+    mpc update &> /dev/null || true
+    
+    # Wait for update to process
+    echo "  Waiting for database scan to complete..."
+    sleep 3
+    
+    # Check database stats
+    DB_STATS=$(mpc stats 2>/dev/null || echo "")
+    if echo "$DB_STATS" | grep -q "Songs:"; then
+        SONG_COUNT=$(echo "$DB_STATS" | grep "Songs:" | awk '{print $2}')
+        if [ "$SONG_COUNT" -gt 0 ]; then
+            echo "✓ Database updated successfully"
+            echo "  Found $SONG_COUNT song(s) in database"
+        else
+            echo "⚠ Database updated but no songs found"
+            echo "  Music directory may be empty or permissions issue"
+            echo "  Check: ls -la $MUSIC_DIR"
+        fi
+    else
+        echo "⚠ Could not verify database stats"
+        echo "  Run 'mpc stats' manually to check"
+    fi
+    
+    # Show database update status
+    mpc status &> /dev/null || echo "  Note: MPD may still be indexing files"
 fi
 
 # Summary

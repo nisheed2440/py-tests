@@ -110,17 +110,69 @@ class DACTester:
     
     def update_mpd_database(self):
         """Update MPD database"""
-        print("\n[4/5] Updating MPD database...")
+        print("\n[4/5] Checking MPD database...")
         try:
+            # First check current database stats
+            result = subprocess.run(['mpc', 'stats'], 
+                                  capture_output=True,
+                                  text=True,
+                                  timeout=5)
+            
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if 'Songs:' in line or 'Artists:' in line or 'Albums:' in line:
+                        print(f"  {line.strip()}")
+                
+                # Check if database has songs
+                songs_match = None
+                for line in result.stdout.split('\n'):
+                    if 'Songs:' in line:
+                        songs_match = line
+                        break
+                
+                if songs_match and 'Songs: 0' not in songs_match:
+                    print("✓ Database already contains music")
+                    return True
+            
+            # If no songs, try updating
+            print("  No songs in database, updating...")
             subprocess.run(['mpc', 'update'], 
                          capture_output=True, 
                          timeout=10)
-            print("✓ Database update initiated")
+            print("  Database update initiated")
             
             # Wait for update to complete
-            print("  Waiting for database update to complete...", end='', flush=True)
-            time.sleep(3)
+            print("  Waiting for database scan to complete...", end='', flush=True)
+            time.sleep(4)
             print(" done")
+            
+            # Check stats again
+            result = subprocess.run(['mpc', 'stats'], 
+                                  capture_output=True,
+                                  text=True,
+                                  timeout=5)
+            
+            if result.returncode == 0:
+                song_count = 0
+                for line in result.stdout.split('\n'):
+                    if 'Songs:' in line:
+                        try:
+                            song_count = int(line.split(':')[1].strip())
+                        except:
+                            pass
+                        print(f"\n  {line.strip()}")
+                
+                if song_count > 0:
+                    print("✓ Database updated successfully")
+                    return True
+                else:
+                    print("⚠ Database updated but no songs found")
+                    print("  This may indicate:")
+                    print("    - Music directory is empty")
+                    print("    - MPD doesn't have permission to read music directory")
+                    print("    - Music directory path is incorrect in MPD config")
+                    return False
+            
             return True
         except Exception as e:
             print(f"✗ Error updating database: {e}")

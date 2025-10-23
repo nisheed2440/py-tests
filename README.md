@@ -222,9 +222,11 @@ py-2/
 ├── album_cover_*.png          # Sample album artwork
 ├── DAC_TESTING_SUMMARY.md     # DAC quick start guide
 ├── DAC_SETUP_GUIDE.md         # Complete DAC HAT setup guide
+├── MPD_DATABASE_TROUBLESHOOTING.md  # MPD database troubleshooting
 ├── MPC_QUICK_REFERENCE.md     # MPC command reference
 ├── mpd.conf.sample            # Sample MPD configuration
 ├── setup_dac.sh               # Automated DAC setup script
+├── check_mpd_music.sh         # Quick MPD diagnostic script
 └── requirements.txt
 ```
 
@@ -289,6 +291,51 @@ Note: Uses Allo Boss DAC overlay as the HiFi DAC HAT uses the PCM5122 chip.
 - MPC (Music Player Client)
 
 See **[DAC_SETUP_GUIDE.md](DAC_SETUP_GUIDE.md)** for complete setup instructions.
+
+## Troubleshooting
+
+### MPD Database Issues
+
+If `mpc` finds music files but the database shows 0 songs, run the quick diagnostic:
+
+```bash
+./check_mpd_music.sh
+```
+
+This checks:
+- MPD configuration and music directory path
+- File permissions for MPD user
+- Database status and statistics
+- Common misconfigurations
+
+**Common fixes:**
+
+1. **Permission issue:**
+   ```bash
+   sudo chmod -R a+rX ~/Music
+   sudo systemctl restart mpd
+   mpc update
+   ```
+
+2. **Wrong directory path:**
+   ```bash
+   # Check MPD config
+   grep music_directory /etc/mpd.conf
+   
+   # Update if needed
+   sudo nano /etc/mpd.conf
+   sudo systemctl restart mpd
+   mpc update
+   ```
+
+3. **Database not updated:**
+   ```bash
+   mpc update
+   sleep 5
+   mpc stats
+   ```
+
+See **[MPD_DATABASE_TROUBLESHOOTING.md](MPD_DATABASE_TROUBLESHOOTING.md)** for detailed troubleshooting steps.
 
 ## Reference
 
