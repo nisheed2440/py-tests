@@ -1,0 +1,277 @@
+# MPD Configuration File - Sample for HiFi DAC HAT
+# Copy this to /etc/mpd.conf or ~/.config/mpd/mpd.conf
+#
+# After editing, restart MPD:
+# sudo systemctl restart mpd
+
+# Music Directory
+# This is where MPD will look for music files
+music_directory     "/home/pi/Music"
+# Alternative: music_directory "/var/lib/mpd/music"
+
+# Playlist Directory
+# Where MPD stores saved playlists
+playlist_directory  "/var/lib/mpd/playlists"
+
+# Database File
+# Where MPD stores its music database
+db_file             "/var/lib/mpd/tag_cache"
+
+# Log File
+log_file            "/var/log/mpd/mpd.log"
+
+# PID File
+pid_file            "/run/mpd/pid"
+
+# State File
+# Stores MPD's state (current playlist, position, etc.)
+state_file          "/var/lib/mpd/state"
+
+# Sticker Database
+# For storing ratings, play counts, etc.
+sticker_file        "/var/lib/mpd/sticker.sql"
+
+# User that MPD runs as
+# If you have permission issues, you might need to adjust this
+user                "mpd"
+
+# Bind to all interfaces (allows remote control)
+bind_to_address     "any"
+
+# Port to listen on
+port                "6600"
+
+# Logging
+# Options: default, secure, verbose
+log_level           "default"
+
+# Restore state on startup
+restore_paused      "yes"
+
+# Automatically update database when files change
+auto_update         "yes"
+
+# Follow symbolic links
+follow_outside_symlinks "yes"
+follow_inside_symlinks  "yes"
+
+# ==============================================================================
+# AUDIO OUTPUT - HiFi DAC HAT Configuration
+# ==============================================================================
+
+# Primary output to HiFi DAC HAT via ALSA
+audio_output {
+    type            "alsa"
+    name            "HiFi DAC HAT"
+    device          "hw:0,0"           # Hardware device 0, subdevice 0
+    mixer_type      "hardware"         # Use hardware mixer
+    mixer_device    "default"          # Default mixer device
+    mixer_control   "Digital"          # PCM5122 uses "Digital" control
+    mixer_index     "0"                # First mixer
+    
+    # High-quality audio settings (optional)
+    # Uncomment to force specific quality
+    # format          "44100:24:2"     # 44.1kHz, 24-bit, stereo
+    # auto_resample   "no"             # Don't resample
+    # auto_format     "no"             # Don't change format
+    # auto_channels   "no"             # Don't change channels
+    
+    # Buffer settings (tune if you experience stuttering)
+    # buffer_time     "500000"         # 500ms buffer
+    # period_time     "50000"          # 50ms period
+}
+
+# Alternative: Use PulseAudio (if installed)
+# Uncomment this block and comment out ALSA block above if using PulseAudio
+#audio_output {
+#    type            "pulse"
+#    name            "PulseAudio Output"
+#    mixer_type      "hardware"
+#}
+
+# Optional: HTTP Streaming Output
+# Allows streaming to web browsers and other devices
+audio_output {
+    type            "httpd"
+    name            "HTTP Stream"
+    encoder         "lame"              # MP3 encoding
+    port            "8000"              # Stream on port 8000
+    bitrate         "320"               # 320 kbps
+    format          "44100:16:2"        # 44.1kHz, 16-bit, stereo
+    always_on       "yes"               # Keep stream active
+    tags            "yes"               # Include metadata
+    max_clients     "0"                 # Unlimited clients
+}
+
+# Optional: FIFO Output (for visualizers)
+# Uncomment to enable audio visualization support
+#audio_output {
+#    type            "fifo"
+#    name            "FIFO Output"
+#    path            "/tmp/mpd.fifo"
+#    format          "44100:16:2"
+#}
+
+# Optional: Null Output (for testing without sound)
+#audio_output {
+#    type            "null"
+#    name            "Null Output"
+#    mixer_type      "none"
+#}
+
+# ==============================================================================
+# NORMALIZATION
+# ==============================================================================
+
+# Volume normalization (optional)
+# Useful if your music has varying volume levels
+# Options: no, yes, auto
+replaygain          "auto"
+
+# Pre-amplification for ReplayGain
+# Adjust if normalized audio is too quiet/loud
+# Range: -15 to 15 (dB)
+replaygain_preamp   "0"
+
+# Limit ReplayGain to prevent clipping
+replaygain_limit    "yes"
+
+# ==============================================================================
+# DECODER SETTINGS
+# ==============================================================================
+
+# Audio buffer (tune for your Raspberry Pi)
+# Larger = less stuttering, more latency
+audio_buffer_size   "4096"
+
+# Buffer before playing (percentage of audio_buffer_size)
+buffer_before_play  "10%"
+
+# ==============================================================================
+# INPUT PLUGINS
+# ==============================================================================
+
+# Uncomment to enable specific input plugins
+# MPD auto-detects most formats, but you can tune specific decoders
+
+# FLAC decoder
+#decoder {
+#    plugin          "flac"
+#    enabled         "yes"
+#}
+
+# MP3 decoder
+#decoder {
+#    plugin          "mad"              # or "mpg123"
+#    enabled         "yes"
+#}
+
+# ==============================================================================
+# FILESYSTEM CHARSET
+# ==============================================================================
+
+# Charset for filesystem paths
+filesystem_charset  "UTF-8"
+
+# ==============================================================================
+# NETWORK SETTINGS
+# ==============================================================================
+
+# Maximum number of simultaneous connections
+max_connections     "10"
+
+# Connection timeout (seconds)
+connection_timeout  "60"
+
+# Maximum command list size
+max_command_list_size   "2048"
+
+# Maximum output buffer size (KB)
+max_output_buffer_size  "8192"
+
+# ==============================================================================
+# ZEROCONF / AVAHI
+# ==============================================================================
+
+# Advertise MPD via Zeroconf/Avahi (allows auto-discovery on network)
+zeroconf_enabled    "yes"
+zeroconf_name       "Music Player @ %h"
+
+# ==============================================================================
+# PERMISSIONS
+# ==============================================================================
+
+# Default permissions for clients
+# Options: read, add, control, admin
+#default_permissions "read,add,control"
+
+# Password-protected access (optional)
+# Format: "password@permission,permission,..."
+#password            "mypass@read,add,control,admin"
+
+# ==============================================================================
+# DATABASE SETTINGS
+# ==============================================================================
+
+# Database plugins
+database {
+    plugin          "simple"
+    path            "/var/lib/mpd/db"
+    
+    # Update database cache on startup
+    #cache_directory "/var/lib/mpd/cache"
+}
+
+# ==============================================================================
+# VOLUME CONFIGURATION
+# ==============================================================================
+
+# Volume normalization
+# This helps maintain consistent volume across tracks
+# volume_normalization "yes"
+
+# Software mixer (if hardware mixer not available)
+# Uncomment if you have issues with hardware volume control
+#mixer_type         "software"
+
+# ==============================================================================
+# SAMPLE RATE CONVERSION
+# ==============================================================================
+
+# Sample rate converter quality
+# Options: 0 (worst) to 2 (best)
+# Higher quality = more CPU usage
+#samplerate_converter "Best Sinc Interpolator"
+
+# ==============================================================================
+# TROUBLESHOOTING
+# ==============================================================================
+
+# If you experience issues:
+#
+# 1. Permission Errors:
+#    - Check ownership: sudo chown -R mpd:audio /var/lib/mpd
+#    - Check music dir: sudo chown -R mpd:audio /home/pi/Music
+#    - Add mpd to audio group: sudo usermod -a -G audio mpd
+#
+# 2. No Sound:
+#    - Verify device: aplay -l
+#    - Test ALSA: speaker-test -D hw:0,0 -c 2
+#    - Check mixer: alsamixer -c 0
+#    - Try different device values: "hw:0,0", "hw:1,0", "default"
+#
+# 3. Crackling/Stuttering:
+#    - Increase audio_buffer_size
+#    - Increase buffer_time and period_time in audio_output
+#    - Reduce quality: format "44100:16:2"
+#
+# 4. Database Issues:
+#    - Force update: mpc update
+#    - Force rescan: mpc rescan
+#    - Check logs: tail -f /var/log/mpd/mpd.log
+#
+# 5. Service Won't Start:
+#    - Check syntax: mpd --no-daemon --verbose /etc/mpd.conf
+#    - Check logs: sudo journalctl -u mpd -n 50
+#    - Verify paths exist and have correct permissions
+

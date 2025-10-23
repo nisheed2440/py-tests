@@ -40,6 +40,21 @@ def run_nfc_diagnostic():
     run_diagnostic()
 
 
+def run_dac_test():
+    """Run the DAC HAT test with MPD/MPC"""
+    from modules.dac import run_test
+    print("=" * 50)
+    print("Starting DAC HAT Test")
+    print("=" * 50)
+    run_test()
+
+
+def run_dac_diagnostic():
+    """Run the DAC HAT hardware diagnostic"""
+    from modules.dac import run_diagnostic
+    run_diagnostic()
+
+
 def list_tests():
     """Display available tests"""
     print("\nAvailable tests:")
@@ -47,11 +62,15 @@ def list_tests():
     print("  music        - Run the music player UI")
     print("  nfc          - Test the MFRC522 NFC/RFID reader")
     print("  nfc-diag     - Run NFC hardware diagnostic")
+    print("  dac          - Test the HiFi DAC HAT with MPD/MPC")
+    print("  dac-diag     - Run DAC hardware diagnostic")
     print("\nUsage examples:")
     print("  python app.py lcd")
     print("  python app.py music")
     print("  python app.py nfc")
     print("  python app.py nfc-diag")
+    print("  python app.py dac")
+    print("  python app.py dac-diag")
     print("  python app.py --list")
 
 
@@ -65,6 +84,8 @@ Examples:
   python app.py music         Run music player
   python app.py nfc           Run NFC/RFID reader test
   python app.py nfc-diag      Run NFC hardware diagnostic
+  python app.py dac           Run DAC HAT test with MPD/MPC
+  python app.py dac-diag      Run DAC hardware diagnostic
   python app.py --list        Show all available tests
         """
     )
@@ -72,7 +93,7 @@ Examples:
     parser.add_argument(
         'test',
         nargs='?',
-        choices=['lcd', 'music', 'nfc', 'nfc-diag'],
+        choices=['lcd', 'music', 'nfc', 'nfc-diag', 'dac', 'dac-diag'],
         help='Test module to run'
     )
     
@@ -103,6 +124,10 @@ Examples:
             run_nfc_test()
         elif args.test == 'nfc-diag':
             run_nfc_diagnostic()
+        elif args.test == 'dac':
+            run_dac_test()
+        elif args.test == 'dac-diag':
+            run_dac_diagnostic()
     except KeyboardInterrupt:
         print("\n\nTest interrupted by user")
         sys.exit(0)

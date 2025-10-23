@@ -47,9 +47,12 @@ sudo $(which python) app.py music
 
 # Run NFC/RFID reader test
 sudo $(which python) app.py nfc
+
+# Run DAC HAT test
+python app.py dac
 ```
 
-**Note:** `sudo` is required for GPIO access on Raspberry Pi.
+**Note:** `sudo` is required for GPIO access on Raspberry Pi. DAC testing doesn't require sudo unless MPD is configured to require it.
 
 ## Available Tests
 
@@ -106,6 +109,70 @@ Use this if you're having issues with card detection:
 sudo $(which python) app.py nfc-diag
 ```
 
+### DAC HAT Test (`python app.py dac`)
+
+Tests the Inno-Maker HiFi DAC HAT using MPD (Music Player Daemon) and MPC (Music Player Client):
+1. Checks MPD/MPC installation and configuration
+2. Verifies music directory setup
+3. Updates MPD database
+4. Tests audio playback through the DAC
+5. Provides interactive playback controls
+
+**If the DAC isn't working, run the diagnostic first:**
+```bash
+python app.py dac-diag
+```
+
+Run the test directly as a module:
+```bash
+python -m modules.dac.dac_test
+```
+
+**Interactive Controls:**
+- `p` - Play/Pause
+- `n` - Next track
+- `b` - Previous track
+- `+` - Volume up
+- `-` - Volume down
+- `s` - Show status
+- `l` - List playlist
+- `q` - Quit
+
+**Setup Required:**
+Before running the DAC test, you need to:
+1. Install the DAC HAT hardware
+2. Configure the device tree overlay
+3. Install MPD and MPC
+4. Set up your music directory
+
+**Quick Setup (on Raspberry Pi):**
+```bash
+# Run the automated setup script
+./setup_dac.sh
+```
+
+**Additional Resources:**
+- **[DAC_TESTING_SUMMARY.md](DAC_TESTING_SUMMARY.md)** - Quick start guide ⭐ Start here!
+- **[DAC_SETUP_GUIDE.md](DAC_SETUP_GUIDE.md)** - Complete setup instructions
+- **[MPC_QUICK_REFERENCE.md](MPC_QUICK_REFERENCE.md)** - MPC command reference
+- **[mpd.conf.sample](mpd.conf.sample)** - Sample MPD configuration file
+- **[setup_dac.sh](setup_dac.sh)** - Automated setup script
+
+### DAC Hardware Diagnostic (`python app.py dac-diag`)
+
+Comprehensive diagnostic tool to check DAC HAT setup:
+1. Tests hardware detection (I2C/sound cards)
+2. Verifies MPD installation and service status
+3. Checks MPD configuration
+4. Validates MPC installation
+5. Checks music directory and files
+6. Reviews boot configuration for DAC overlay
+
+Use this if you're having issues with the DAC:
+```bash
+python app.py dac-diag
+```
+
 ### Music Player (`python app.py music`)
 
 A fully functional music player interface with album art display and interactive controls.
@@ -143,12 +210,21 @@ py-2/
 │   │   ├── controls.py        # Button/joystick input handling
 │   │   ├── player.py          # Music player logic and UI rendering
 │   │   └── ui.py              # Music player main loop
-│   └── nfc/                   # NFC/RFID module
+│   ├── nfc/                   # NFC/RFID module
+│   │   ├── __init__.py
+│   │   ├── diagnostic.py      # Hardware diagnostic tool
+│   │   └── nfc_test.py        # NFC reader test suite
+│   └── dac/                   # DAC HAT module
 │       ├── __init__.py
-│       ├── diagnostic.py      # Hardware diagnostic tool
-│       └── nfc_test.py        # NFC reader test suite
+│       ├── dac_test.py        # DAC test suite with MPD/MPC
+│       └── dac_diagnostic.py  # DAC hardware diagnostic
 ├── music_player_ui.py         # Standalone music player (legacy)
 ├── album_cover_*.png          # Sample album artwork
+├── DAC_TESTING_SUMMARY.md     # DAC quick start guide
+├── DAC_SETUP_GUIDE.md         # Complete DAC HAT setup guide
+├── MPC_QUICK_REFERENCE.md     # MPC command reference
+├── mpd.conf.sample            # Sample MPD configuration
+├── setup_dac.sh               # Automated DAC setup script
 └── requirements.txt
 ```
 
@@ -188,7 +264,31 @@ Uses the `mfrc522-python` library with default configuration:
 
 **Note:** The library uses BCM GPIO 25 for RST by default, which is physical pin 22.
 
+### HiFi DAC HAT (Inno-Maker)
+Uses I2S interface for high-quality audio:
+- **DAC Chip**: PCM5122
+- **Interface**: I2S (via GPIO)
+- **Sample Rate**: Up to 384kHz
+- **Bit Depth**: 32-bit
+- **Outputs**: 3.5mm headphone jack, RCA stereo
+
+**Configuration:**
+Requires device tree overlay in `/boot/config.txt`:
+```
+dtoverlay=allo-boss-dac-pcm512x-audio
+```
+Note: Uses Allo Boss DAC overlay as the HiFi DAC HAT uses the PCM5122 chip.
+
+**Software Requirements:**
+- MPD (Music Player Daemon)
+- MPC (Music Player Client)
+
+See **[DAC_SETUP_GUIDE.md](DAC_SETUP_GUIDE.md)** for complete setup instructions.
+
 ## Reference
 
-Based on [Waveshare 1.3inch LCD HAT Wiki](https://www.waveshare.com/wiki/1.3inch_LCD_HAT)
+- [Waveshare 1.3inch LCD HAT Wiki](https://www.waveshare.com/wiki/1.3inch_LCD_HAT)
+- [Inno-Maker HiFi DAC HAT Manual](https://www.inno-maker.com/wp-content/uploads/2017/11/HIFI-DAC-User-Manual-V1.2.pdf)
+- [MPD Documentation](https://www.musicpd.org/doc/html/)
+- [MPC Documentation](https://www.musicpd.org/clients/mpc/)
 
