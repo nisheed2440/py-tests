@@ -59,13 +59,15 @@ Choose one of the following:
 ### Step 1: Enable I2C and I2S
 
 1. **Edit boot configuration:**
-   ```bash
-   sudo nano /boot/config.txt
-   ```
    
-   If using Raspberry Pi OS Bookworm or newer:
+   For **Raspberry Pi OS Bookworm (2023+)** or newer:
    ```bash
    sudo nano /boot/firmware/config.txt
+   ```
+   
+   For **older Raspberry Pi OS versions**:
+   ```bash
+   sudo nano /boot/config.txt
    ```
 
 2. **Add the Allo Boss DAC overlay (for PCM5122):**
@@ -328,6 +330,10 @@ mpc search title "Song Title"
 
 **Check boot configuration:**
 ```bash
+# For Bookworm (2023+) or newer
+cat /boot/firmware/config.txt | grep dtoverlay
+
+# For older OS versions
 cat /boot/config.txt | grep dtoverlay
 ```
 

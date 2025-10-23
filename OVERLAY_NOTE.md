@@ -6,10 +6,14 @@ The **Inno-Maker HiFi DAC HAT** uses the **PCM5122** DAC chip from Texas Instrum
 
 ### Correct Overlay
 
-Use this overlay in `/boot/config.txt`:
+Add this overlay to your boot configuration:
 ```
 dtoverlay=allo-boss-dac-pcm512x-audio
 ```
+
+**Config file location:**
+- `/boot/firmware/config.txt` (Raspberry Pi OS Bookworm 2023+)
+- `/boot/config.txt` (older versions)
 
 ### Why This Overlay?
 
@@ -33,8 +37,18 @@ The `allo-boss-dac-pcm512x-audio` overlay is **recommended** because:
 
 ### Configuration Example
 
-Complete `/boot/config.txt` configuration:
+Complete boot configuration:
 
+**Edit the config file:**
+```bash
+# For Bookworm (2023+) or newer
+sudo nano /boot/firmware/config.txt
+
+# For older OS versions
+sudo nano /boot/config.txt
+```
+
+**Add these lines:**
 ```bash
 # Disable onboard audio
 #dtparam=audio=on

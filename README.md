@@ -273,10 +273,15 @@ Uses I2S interface for high-quality audio:
 - **Outputs**: 3.5mm headphone jack, RCA stereo
 
 **Configuration:**
-Requires device tree overlay in `/boot/config.txt`:
+Requires device tree overlay in boot config:
 ```
 dtoverlay=allo-boss-dac-pcm512x-audio
 ```
+
+**Config file location:**
+- `/boot/firmware/config.txt` (Raspberry Pi OS Bookworm 2023+)
+- `/boot/config.txt` (older versions)
+
 Note: Uses Allo Boss DAC overlay as the HiFi DAC HAT uses the PCM5122 chip.
 
 **Software Requirements:**

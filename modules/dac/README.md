@@ -87,7 +87,19 @@ sudo apt-get install mpd mpc
 
 The DAC HAT requires the Allo Boss DAC device tree overlay (for PCM512x chips).
 
-Edit `/boot/config.txt` or `/boot/firmware/config.txt`:
+Edit the boot configuration file:
+
+**Raspberry Pi OS Bookworm (2023+) or newer:**
+```bash
+sudo nano /boot/firmware/config.txt
+```
+
+**Older Raspberry Pi OS versions:**
+```bash
+sudo nano /boot/config.txt
+```
+
+Add:
 ```
 dtoverlay=allo-boss-dac-pcm512x-audio
 # dtparam=audio=on  # Comment this out
@@ -112,6 +124,7 @@ sudo reboot
 ### DAC not detected
 - Check GPIO connection
 - Verify boot config has `dtoverlay=allo-boss-dac-pcm512x-audio`
+- Check: `/boot/firmware/config.txt` or `/boot/config.txt`
 - Run: `cat /proc/asound/cards`
 
 ### No sound

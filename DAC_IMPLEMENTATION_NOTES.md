@@ -182,8 +182,10 @@ python app.py dac
 # Install software
 sudo apt-get install mpd mpc
 
-# Configure boot
-sudo nano /boot/config.txt
+# Configure boot (location depends on OS version)
+sudo nano /boot/firmware/config.txt  # Bookworm 2023+
+# OR
+sudo nano /boot/config.txt           # Older versions
 # Add: dtoverlay=allo-boss-dac-pcm512x-audio
 # Comment: # dtparam=audio=on
 

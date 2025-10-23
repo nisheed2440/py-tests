@@ -1,5 +1,46 @@
 # DAC Module Changelog
 
+## Update - Boot Config Location for Bookworm (October 23, 2024)
+
+### Issue Identified
+Raspberry Pi OS Bookworm (2023+) moved the boot configuration from `/boot/config.txt` to `/boot/firmware/config.txt`. The documentation and scripts needed to be updated to check the new location first.
+
+### Changes Made
+
+#### 1. Updated All Documentation
+All documentation now references the new location first, with the old location as fallback:
+- **Primary location**: `/boot/firmware/config.txt` (Bookworm 2023+)
+- **Fallback location**: `/boot/config.txt` (older versions)
+
+**Files Updated:**
+- ✅ `README.md`
+- ✅ `DAC_SETUP_GUIDE.md`
+- ✅ `DAC_TESTING_SUMMARY.md`
+- ✅ `DAC_IMPLEMENTATION_NOTES.md`
+- ✅ `modules/dac/README.md`
+- ✅ `OVERLAY_NOTE.md`
+
+#### 2. Updated Scripts
+
+**`modules/dac/dac_diagnostic.py`**
+- Changed to check `/boot/firmware/config.txt` first
+- Falls back to `/boot/config.txt` if not found
+- Provides clear error message showing both locations
+
+**`setup_dac.sh`**
+- Updated to check new location first
+- Falls back gracefully to old location
+- Shows both possible locations in error messages
+
+#### 3. Backward Compatibility
+The code now:
+- ✅ Works on Bookworm (2023+) with new location
+- ✅ Works on older OS versions with old location
+- ✅ Automatically detects which location exists
+- ✅ Provides helpful messages if neither location is found
+
+---
+
 ## Update - Corrected Device Tree Overlay (October 23, 2024)
 
 ### Issue Identified

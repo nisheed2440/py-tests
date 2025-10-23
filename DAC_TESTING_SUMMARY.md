@@ -24,6 +24,13 @@ The following files have been added to help you test and configure your DAC HAT:
 ### Step 2: Software Configuration
 
 Edit the boot configuration:
+
+**For Raspberry Pi OS Bookworm (2023+) or newer:**
+```bash
+sudo nano /boot/firmware/config.txt
+```
+
+**For older Raspberry Pi OS versions:**
 ```bash
 sudo nano /boot/config.txt
 ```
@@ -176,7 +183,8 @@ cat /proc/asound/cards
 Should show sound card for the DAC (may show as `sndrpihifiberry` or similar).
 
 **Solution:**
-- Verify `dtoverlay=allo-boss-dac-pcm512x-audio` is in `/boot/config.txt`
+- Verify `dtoverlay=allo-boss-dac-pcm512x-audio` is in boot config
+- Location: `/boot/firmware/config.txt` (Bookworm) or `/boot/config.txt` (older)
 - Ensure onboard audio is disabled: `# dtparam=audio=on`
 - Reboot after changes
 - Check GPIO connection is secure

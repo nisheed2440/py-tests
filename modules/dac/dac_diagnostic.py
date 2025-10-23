@@ -297,9 +297,10 @@ class DACDiagnostic:
         """Check boot configuration for DAC overlay"""
         self.print_header("6. Boot Configuration")
         
-        boot_config = '/boot/config.txt'
+        # Check new location first (Bookworm+), then fall back to old location
+        boot_config = '/boot/firmware/config.txt'
         if not os.path.exists(boot_config):
-            boot_config = '/boot/firmware/config.txt'
+            boot_config = '/boot/config.txt'
         
         if os.path.exists(boot_config):
             try:
@@ -325,7 +326,9 @@ class DACDiagnostic:
                 self.print_warning(f"Could not read boot config: {e}")
         else:
             self.print_warning("Boot config not found")
-            print(f"  Expected: {boot_config}")
+            print("  Expected locations:")
+            print("    - /boot/firmware/config.txt (Bookworm 2023+)")
+            print("    - /boot/config.txt (older versions)")
     
     def print_summary(self):
         """Print diagnostic summary"""

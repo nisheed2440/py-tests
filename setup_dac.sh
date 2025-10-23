@@ -52,9 +52,10 @@ fi
 # Step 3: Configure boot config
 echo ""
 echo "[3/5] Checking boot configuration..."
-BOOT_CONFIG="/boot/config.txt"
+# Check new location first (Bookworm+), then fall back to old location
+BOOT_CONFIG="/boot/firmware/config.txt"
 if [ ! -f "$BOOT_CONFIG" ]; then
-    BOOT_CONFIG="/boot/firmware/config.txt"
+    BOOT_CONFIG="/boot/config.txt"
 fi
 
 if [ -f "$BOOT_CONFIG" ]; then
@@ -79,7 +80,10 @@ if [ -f "$BOOT_CONFIG" ]; then
         echo "✓ Onboard audio already disabled"
     fi
 else
-    echo "⚠ Boot config not found at $BOOT_CONFIG"
+    echo "⚠ Boot config not found"
+    echo "  Checked locations:"
+    echo "    - /boot/firmware/config.txt (Bookworm 2023+)"
+    echo "    - /boot/config.txt (older versions)"
     echo "  Please manually add: dtoverlay=allo-boss-dac-pcm512x-audio"
 fi
 
