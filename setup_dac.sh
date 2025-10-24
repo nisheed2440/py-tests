@@ -119,6 +119,25 @@ if [ -f "$MPD_CONF" ]; then
         echo "⚠ Could not find music_directory setting in config"
     fi
     
+    # Configure audio output (fix "sndio" error)
+    if ! grep -q "^audio_output" "$MPD_CONF"; then
+        echo ""
+        echo "  Adding ALSA audio output configuration..."
+        sudo bash -c "cat >> $MPD_CONF" <<'EOF'
+
+# Audio output for DAC HAT
+audio_output {
+    type            "alsa"
+    name            "HiFi DAC HAT"
+    device          "hw:0,0"
+    mixer_type      "hardware"
+    mixer_device    "default"
+    mixer_control   "Digital"
+}
+EOF
+        echo "  ✓ Added ALSA audio output"
+    fi
+    
     # Check permissions on music directory
     if [ -d "$MUSIC_DIR" ]; then
         MPD_USER=$(grep "^user" "$MPD_CONF" | awk '{print $2}' | tr -d '"')
