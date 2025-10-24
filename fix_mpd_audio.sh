@@ -45,10 +45,10 @@ if grep -q "^audio_output" "$MPD_CONF"; then
     sudo sed -i '/^audio_output/,/^}/d' "$MPD_CONF"
 fi
 
-echo "Adding ALSA audio output with 32-bit format..."
+echo "Adding ALSA audio output with DSD and 96kHz support..."
 sudo bash -c "cat >> $MPD_CONF" <<EOF
 
-# Audio output for DAC HAT (PCM5122 requires 24/32-bit)
+# Audio output for DAC HAT (PCM5122 - DSD, 32-bit, 96kHz)
 audio_output {
     type            "alsa"
     name            "HiFi DAC HAT"
@@ -56,12 +56,19 @@ audio_output {
     mixer_type      "hardware"
     mixer_device    "default"
     mixer_control   "Digital"
-    format          "44100:32:2"
+    format          "96000:32:2"
+    dsd_usb         "yes"
     auto_resample   "no"
     auto_format     "no"
 }
 EOF
-echo "✓ Added ALSA configuration with 32-bit format"
+echo "✓ Added ALSA configuration with DSD and 96kHz support"
+
+# Set default volume to 50%
+echo ""
+echo "Setting default volume to 50%..."
+mpc volume 50 2>/dev/null || true
+echo "✓ Volume set to 50%"
 
 # Restart MPD
 echo "Restarting MPD..."

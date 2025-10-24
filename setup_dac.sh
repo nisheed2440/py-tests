@@ -125,7 +125,7 @@ if [ -f "$MPD_CONF" ]; then
         echo "  Adding ALSA audio output configuration..."
         sudo bash -c "cat >> $MPD_CONF" <<'EOF'
 
-# Audio output for DAC HAT
+# Audio output for DAC HAT (PCM5122 - DSD, 32-bit, 96kHz)
 audio_output {
     type            "alsa"
     name            "HiFi DAC HAT"
@@ -133,12 +133,13 @@ audio_output {
     mixer_type      "hardware"
     mixer_device    "default"
     mixer_control   "Digital"
-    format          "44100:32:2"
+    format          "96000:32:2"
+    dsd_usb         "yes"
     auto_resample   "no"
     auto_format     "no"
 }
 EOF
-        echo "  ✓ Added ALSA audio output"
+        echo "  ✓ Added ALSA audio output with DSD and 96kHz support"
     fi
     
     # Check permissions on music directory
@@ -184,6 +185,9 @@ if command -v mpc &> /dev/null; then
     
     # Wait for MPD to fully restart before updating
     sleep 2
+    
+    # Set default volume to 50%
+    mpc volume 50 &> /dev/null || true
     
     # Run update and wait for completion
     mpc update &> /dev/null || true
