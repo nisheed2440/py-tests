@@ -2,6 +2,30 @@
 # Quick fix for MPD "sndio" audio output error
 
 echo "Fixing MPD audio output configuration..."
+echo ""
+
+# Detect sound card
+echo "Detecting sound cards..."
+if [ -f /proc/asound/cards ]; then
+    cat /proc/asound/cards
+    echo ""
+fi
+
+# Find the correct device
+DEVICE="hw:0,0"
+if aplay -l 2>/dev/null | grep -qi "Allo Boss DAC"; then
+    DEVICE="hw:CARD=BossDAC,DEV=0"
+    echo "✓ Detected Allo Boss DAC, using: $DEVICE"
+elif aplay -l 2>/dev/null | grep -qi "boss"; then
+    DEVICE="hw:CARD=BossDAC,DEV=0"
+    echo "✓ Detected Boss DAC, using: $DEVICE"
+elif aplay -l 2>/dev/null | grep -qi "hifiberry"; then
+    DEVICE="hw:CARD=sndrpihifiberry,DEV=0"
+    echo "✓ Detected HiFiBerry, using: $DEVICE"
+else
+    echo "Using default: $DEVICE"
+fi
+echo ""
 
 MPD_CONF="/etc/mpd.conf"
 if [ ! -f "$MPD_CONF" ]; then
@@ -22,13 +46,13 @@ if grep -q "^audio_output" "$MPD_CONF"; then
 fi
 
 echo "Adding ALSA audio output with 32-bit format..."
-sudo bash -c "cat >> $MPD_CONF" <<'EOF'
+sudo bash -c "cat >> $MPD_CONF" <<EOF
 
 # Audio output for DAC HAT (PCM5122 requires 24/32-bit)
 audio_output {
     type            "alsa"
     name            "HiFi DAC HAT"
-    device          "hw:0,0"
+    device          "$DEVICE"
     mixer_type      "hardware"
     mixer_device    "default"
     mixer_control   "Digital"
