@@ -45,22 +45,27 @@ if grep -q "^audio_output" "$MPD_CONF"; then
     sudo sed -i '/^audio_output/,/^}/d' "$MPD_CONF"
 fi
 
-echo "Adding ALSA audio output with DSD and 96kHz support..."
+echo "Adding ALSA audio output with optimized settings..."
 sudo bash -c "cat >> $MPD_CONF" <<EOF
 
-# Audio output for DAC HAT (PCM5122 - DSD, 32-bit, 96kHz)
+# Audio output for DAC HAT (PCM5122 - optimized for low noise)
 audio_output {
     type            "alsa"
     name            "HiFi DAC HAT"
     device          "$DEVICE"
-    mixer_type      "hardware"
-    mixer_device    "default"
-    mixer_control   "Digital"
-    format          "96000:32:2"
+    mixer_type      "software"
+    format          "44100:32:2"
     dsd_usb         "yes"
-    auto_resample   "no"
-    auto_format     "no"
+    auto_resample   "yes"
+    auto_format     "yes"
+    auto_channels   "yes"
+    buffer_time     "500000"
+    period_time     "50000"
 }
+
+# Increase audio buffer to prevent noise
+audio_buffer_size   "8192"
+buffer_before_play  "20%"
 EOF
 echo "✓ Added ALSA configuration with DSD and 96kHz support"
 
