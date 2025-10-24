@@ -15,14 +15,16 @@ if [ ! -f "$MPD_CONF.backup" ]; then
     echo "✓ Backed up config"
 fi
 
-# Check if ALSA audio output already configured
-if grep -q "type.*\"alsa\"" "$MPD_CONF"; then
-    echo "✓ ALSA audio output already configured"
-else
-    echo "Adding ALSA audio output..."
-    sudo bash -c "cat >> $MPD_CONF" <<'EOF'
+# Remove old audio_output if exists
+if grep -q "^audio_output" "$MPD_CONF"; then
+    echo "Removing old audio output configuration..."
+    sudo sed -i '/^audio_output/,/^}/d' "$MPD_CONF"
+fi
 
-# Audio output for DAC HAT
+echo "Adding ALSA audio output with 32-bit format..."
+sudo bash -c "cat >> $MPD_CONF" <<'EOF'
+
+# Audio output for DAC HAT (PCM5122 requires 24/32-bit)
 audio_output {
     type            "alsa"
     name            "HiFi DAC HAT"
@@ -30,10 +32,12 @@ audio_output {
     mixer_type      "hardware"
     mixer_device    "default"
     mixer_control   "Digital"
+    format          "44100:32:2"
+    auto_resample   "no"
+    auto_format     "no"
 }
 EOF
-    echo "✓ Added ALSA configuration"
-fi
+echo "✓ Added ALSA configuration with 32-bit format"
 
 # Restart MPD
 echo "Restarting MPD..."

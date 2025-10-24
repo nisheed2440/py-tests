@@ -133,6 +133,9 @@ audio_output {
     mixer_type      "hardware"
     mixer_device    "default"
     mixer_control   "Digital"
+    format          "44100:32:2"
+    auto_resample   "no"
+    auto_format     "no"
 }
 EOF
         echo "  ✓ Added ALSA audio output"
